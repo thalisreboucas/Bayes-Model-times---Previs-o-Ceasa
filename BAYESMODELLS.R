@@ -107,7 +107,7 @@ ForCastBaYeS <- function(id_prod) {
                                 model_fit_adps)
   
   # Calibration table
-  calibration_tbl <- models_tbl %>%
+ calibration_tbl <- models_tbl %>%
     modeltime_calibrate(new_data = testing(splits))
   
   # Graph of the forecasting.
@@ -125,6 +125,7 @@ ForCastBaYeS <- function(id_prod) {
   
   
   return(list(models_tbl,
+              calibration_tbl,
               graph,
               accuracy))
   
@@ -133,16 +134,16 @@ ForCastBaYeS <- function(id_prod) {
 
 laranja <- ForCastBaYeS(24)
 
-laranja[[2]]
+# Graph
+laranja[[3]]
 
-##### Do the Forecasting
-
+###### Doing the Forecasting
 
 # Refti to do the Forecasting
-refit_tbl <- calibration_tbl %>%
+refit_tbl <- laranja[[2]] %>%
   modeltime_refit(data = df)
 
-# Forecastings Graph !!!
+# Forecasting Graph !!!
 refit_tbl %>%
   modeltime_forecast(h = "6 month", actual_data = df) %>%
   plot_modeltime_forecast(.legend_max_width = 25, # For mobile screens
