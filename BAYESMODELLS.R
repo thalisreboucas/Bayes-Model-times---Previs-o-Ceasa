@@ -9,8 +9,7 @@ pacman::p_load(readxl,# Open Data in Xl (Excel)
                timetk, # Making a tables and graph's of timeseries
                lubridate, # Working if date
                datawizard, # making a spells on the datas.
-               plyr,
-               knitr)
+               plyr)
 
 # Open dataset
 data <-  readxl::read_excel(
@@ -19,10 +18,6 @@ data <-  readxl::read_excel(
                   "skip", "skip", "skip", "numeric",
                   "date") )
     
-data <- data  %>% dplyr::select(ID_Produto, Data, `Preco Medio (R$)`) %>%
-      set_names(c("id", "date", "value"))
-
-
 # EDA and Graph function -----
 itens_abc <- c(24,7,8,27,34,44,33,16)
 
@@ -62,13 +57,13 @@ eda[[2]]
 
 # :-)
 
-
-ForCastBaYeS_Fit <- function(data,id_prod) {
-  df <- data %>% 
-    dplyr::group_by(id) %>%
-    dplyr::filter(id == id_prod)
+ForCastBaYeS_Fit <- function(id_prod) {
   
-  splits <- df %>% initial_time_split(prop = 0.9)
+ df <- data %>% 
+    dplyr::group_by(id) %>%
+    dplyr::filter(id == id_prod) 
+  
+  splits <- df %>% initial_time_split(prop = 0.85)
   
   ## Making the models of timeseries
   # BAYEEESSS !!!!
@@ -122,16 +117,16 @@ ForCastBaYeS_Fit <- function(data,id_prod) {
 }
 
 
-laranja <- ForCastBaYeS_Fit(data,24)
+laranja <- ForCastBaYeS_Fit(24)
 
 # Graph
 laranja[[3]]
 
 ###### Doing the Forecasting
 
-ForCastBaYeS_4(Produto){
+ForCastBaYeS_4(Product){
 # Refti to do the Forecasting
-refit_tbl <- Produto[[2]] %>%
+refit_tbl <- Product[[2]] %>%
   modeltime_refit(data = df)
 
 # Forecasting Graph !!!
