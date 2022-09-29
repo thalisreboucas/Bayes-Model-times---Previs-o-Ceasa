@@ -57,7 +57,7 @@ eda[[2]]
 
 # :-)
 
-ForCastBaYeS_Fit <- function(id_prod) {
+ForCastBaYeS_Fit <- function(data,id_prod) {
   
  df <- data %>% 
     dplyr::group_by(id) %>%
@@ -117,7 +117,7 @@ ForCastBaYeS_Fit <- function(id_prod) {
 }
 
 
-laranja <- ForCastBaYeS_Fit(24)
+laranja <- ForCastBaYeS_Fit(data,24)
 
 # Graph
 laranja[[3]]
@@ -126,7 +126,7 @@ laranja[[3]]
 
 ForCastBaYeS_4(Product){
 # Refti to do the Forecasting
-refit_tbl <- Product[[2]] %>%
+refit_tbl <- Product[[4]] %>%
   modeltime_refit(data = df)
 
 # Forecasting Graph !!!
@@ -135,5 +135,8 @@ refit_tbl %>%
   plot_modeltime_forecast(.legend_max_width = 25, # For mobile screens
                           .interactive      = T)
 }
+
+
+ForCastBaYeS_4(laranja)
 
 # Done.
