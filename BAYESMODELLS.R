@@ -124,9 +124,9 @@ laranja[[3]]
 
 ###### Doing the Forecasting
 
-ForCastBaYeS_4(Product){
+ForCastBaYeS_4 <- function(Product){
 # Refti to do the Forecasting
-refit_tbl <- Product[[4]] %>%
+refit_tbl <- Product[[2]] %>%
   modeltime_refit(data = df)
 
 # Forecasting Graph !!!
