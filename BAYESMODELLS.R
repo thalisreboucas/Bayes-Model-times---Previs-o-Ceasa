@@ -9,45 +9,29 @@ pacman::p_load(readxl,# Open Data in Xl (Excel)
                timetk, # Making a tables and graph's of timeseries
                lubridate, # Working if date
                datawizard, # making a spells on the datas.
-               plyr
-               )
+               plyr,
+               knitr)
 
 # Open dataset
-Dados_Ceasa_Preco <-
-  readxl::read_excel(
+data <-  readxl::read_excel(
     "E:/edime/Thalis/MEU/Ceasa/Dados_Ceasa_Preco.xlsx",
-    col_types = c("text", "text", "text",
+    col_types = c("text", "skip", "skip",
                   "skip", "skip", "skip", "numeric",
-                  "date")
-  )
-# Separate the datas what i want
-data <-
-  Dados_Ceasa_Preco %>% dplyr::select(ID_Produto, Data, `Preco Medio (R$)`) %>%
-  set_names(c("id", "date", "value"))
+                  "date") )
+    
+data <- data  %>% dplyr::select(ID_Produto, Data, `Preco Medio (R$)`) %>%
+      set_names(c("id", "date", "value"))
 
 
-# Choosing the product what i want
-df <- data %>% group_by(id) %>%
-  filter(id == 7)
+# EDA and Graph function -----
+itens_abc <- c(24,7,8,27,34,44,33,16)
 
-#Nothing Important
-#itens_abc <- c(24,7,8,27,34,44,33,16)
+EDA <- function(data,id_i){ 
+ dt <- data %>%
+     dplyr::group_by(id) %>%
+     dplyr::filter(id == id_i)
 
-
-# Splits of test data ----
-
-splits <- df %>% initial_time_split(prop = 0.9)
-
-# AED and Graph function -----
-
-plyr::count(df$id)$x
-
-graph <- function(id_i) {
-  dt <- data %>%
-    group_by(id) %>%
-    filter(id == id_i)
-  
-  n <- plyr::count(df$id)$x
+  n <- length(plyr::count(id_i)$x)
   
   if (n > 3) {
     x = 3
@@ -55,28 +39,34 @@ graph <- function(id_i) {
     x = 1
   }
   
-  dt %>%
-    plot_time_series(.facet_ncol = x,
+graph <-  dt %>%
+    timetk::plot_time_series(.facet_ncol = x,
                      .date_var    = date,
                      .value       = value)
   
-}
 
-
-table <- function(id_i) {
-  data %>% filter(id == id_i) %>%  describe_distribution()
+table <-  dt %>%  datawizard::describe_distribution()
+  
+return(list(
+  table <- table,
+  garph <- graph
+))  
   
 }
 
-graph(itens_abc)
-table(7)
+eda <- EDA(data,itens_abc)
+
+eda[[1]]
+eda[[2]]
+
 
 # :-)
 
 
-ForCastBaYeS <- function(id_prod) {
-  df <- data %>% group_by(id) %>%
-    filter(id == id_prod)
+ForCastBaYeS_Fit <- function(data,id_prod) {
+  df <- data %>% 
+    dplyr::group_by(id) %>%
+    dplyr::filter(id == id_prod)
   
   splits <- df %>% initial_time_split(prop = 0.9)
   
@@ -132,15 +122,16 @@ ForCastBaYeS <- function(id_prod) {
 }
 
 
-laranja <- ForCastBaYeS(24)
+laranja <- ForCastBaYeS_Fit(data,24)
 
 # Graph
 laranja[[3]]
 
 ###### Doing the Forecasting
 
+ForCastBaYeS_4(Produto){
 # Refti to do the Forecasting
-refit_tbl <- laranja[[2]] %>%
+refit_tbl <- Produto[[2]] %>%
   modeltime_refit(data = df)
 
 # Forecasting Graph !!!
@@ -148,5 +139,6 @@ refit_tbl %>%
   modeltime_forecast(h = "6 month", actual_data = df) %>%
   plot_modeltime_forecast(.legend_max_width = 25, # For mobile screens
                           .interactive      = T)
+}
 
 # Done.
